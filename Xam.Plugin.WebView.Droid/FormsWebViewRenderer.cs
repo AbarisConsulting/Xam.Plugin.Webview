@@ -57,7 +57,8 @@ namespace Xam.Plugin.WebView.Droid
             if (e.OldElement != null)
                 DestroyElement(e.OldElement);
 
-            if (Element.UseWideViewPort) {
+            if (Element.UseWideViewPort)
+            {
                 Control.Settings.LoadWithOverviewMode = true;
                 Control.Settings.UseWideViewPort = true;
             }
@@ -91,12 +92,11 @@ namespace Xam.Plugin.WebView.Droid
             element.Dispose();
         }
 
-        IValueCallback mUploadMessage;
         public static int FILECHOOSER_RESULTCODE = 1;
         Android.Webkit.WebView _webView = null;
         void SetupControl()
         {
-            _webView = new Android.Webkit.WebView(Forms.Context);
+            _webView = new Android.Webkit.WebView(Android.App.Application.Context);
             _callback = new JavascriptValueCallback(this);
 
             // https://github.com/SKLn-Rad/Xam.Plugin.WebView.Webview/issues/11
@@ -110,7 +110,7 @@ namespace Xam.Plugin.WebView.Droid
             _webView.Settings.AllowFileAccessFromFileURLs = true;
             _webView.AddJavascriptInterface(new FormsWebViewBridge(this), "bridge");
             _webView.SetWebViewClient(new FormsWebViewClient(this));
-            _webView.SetWebChromeClient(new FormsWebViewChromeClient(this, (Activity)Forms.Context));
+            _webView.SetWebChromeClient(new FormsWebViewChromeClient(this, (Activity)Android.App.Application.Context));
             _webView.SetBackgroundColor(Android.Graphics.Color.Transparent);
 
             FormsWebView.CallbackAdded += OnCallbackAdded;
@@ -152,7 +152,8 @@ namespace Xam.Plugin.WebView.Droid
 
         void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName) {
+            switch (e.PropertyName)
+            {
                 case "Source":
                     SetSource();
                     break;
@@ -163,10 +164,13 @@ namespace Xam.Plugin.WebView.Droid
         {
             if (Control == null) return Task.CompletedTask;
 
-            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.LollipopMr1) {
+            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.LollipopMr1)
+            {
                 CookieManager.Instance.RemoveAllCookies(null);
                 CookieManager.Instance.Flush();
-            } else {
+            }
+            else
+            {
 #pragma warning disable CS0618
                 //CookieSyncManager cookieSyncMngr = CookieSyncManager.createInstance(context);
                 CookieSyncManager cookieSyncMngr = CookieSyncManager.CreateInstance(Context);
@@ -186,10 +190,13 @@ namespace Xam.Plugin.WebView.Droid
         {
             if (Control == null || cookie == null || String.IsNullOrEmpty(cookie.Domain) || String.IsNullOrEmpty(cookie.Name))
                 return Task.CompletedTask;
-            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.LollipopMr1) {
+            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.LollipopMr1)
+            {
                 SetCookie(cookie);
                 CookieManager.Instance.Flush();
-            } else {
+            }
+            else
+            {
 #pragma warning disable CS0618
                 CookieSyncManager cookieSyncMngr = CookieSyncManager.CreateInstance(Context);
                 cookieSyncMngr.StartSync();
@@ -203,9 +210,12 @@ namespace Xam.Plugin.WebView.Droid
 
         private Task OnPrintCookiesRequested(IEnumerable<string> urls = null)
         {
-            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.LollipopMr1) {
+            if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.LollipopMr1)
+            {
                 CookieManager.Instance.Flush();
-            } else {
+            }
+            else
+            {
 #pragma warning disable CS0618
                 CookieSyncManager cookieSyncMngr = CookieSyncManager.CreateInstance(Context);
                 cookieSyncMngr.Sync();
@@ -215,7 +225,8 @@ namespace Xam.Plugin.WebView.Droid
                 return Task.CompletedTask;
             if (urls == null)
                 System.Diagnostics.Debug.WriteLine("Android must be given the cookie urls to iterate over");
-            foreach (var url in urls) {
+            foreach (var url in urls)
+            {
                 var cookie = CookieManager.Instance.GetCookie(url);
                 System.Diagnostics.Debug.WriteLine($"Cookie for {url}: {cookie}");
             }
@@ -236,7 +247,8 @@ namespace Xam.Plugin.WebView.Droid
             CookieManager.Instance.SetCookie(url, cookieString);
             //cookieSyncManager.Sync();
 
-            if (!_cookieDomains.ContainsKey(cookie.Domain)) {
+            if (!_cookieDomains.ContainsKey(cookie.Domain))
+            {
                 _cookieDomains[cookie.Domain] = 0;
             }
             _cookieDomains[cookie.Domain] = _cookieDomains[cookie.Domain] + 1;
@@ -251,17 +263,20 @@ namespace Xam.Plugin.WebView.Droid
 
             var response = string.Empty;
 
-            Device.BeginInvokeOnMainThread(() => {
+            Device.BeginInvokeOnMainThread(() =>
+            {
                 if (Control != null)
                     Control.EvaluateJavascript(js, _callback);
             });
 
             // wait!
-            await Task.Run(() => {
+            await Task.Run(() =>
+            {
                 while (_callback.Value == null) { }
 
                 // Get the string and strip off the quotes
-                if (_callback.Value is Java.Lang.String) {
+                if (_callback.Value is Java.Lang.String)
+                {
                     // Unescape that damn Unicode Java bull.
                     response = Regex.Replace(_callback.Value.ToString(), @"\\[Uu]([0-9A-Fa-f]{4})", m => char.ToString((char)ushort.Parse(m.Groups[1].Value, NumberStyles.AllowHexSpecifier)));
                     response = Regex.Unescape(response);
@@ -283,7 +298,8 @@ namespace Xam.Plugin.WebView.Droid
         {
             if (Element == null || Control == null || string.IsNullOrWhiteSpace(Element.Source)) return;
 
-            switch (Element.ContentType) {
+            switch (Element.ContentType)
+            {
                 case WebViewContentType.Internet:
                     LoadFromInternet();
                     break;
@@ -324,14 +340,17 @@ namespace Xam.Plugin.WebView.Droid
             var headers = new Dictionary<string, string>();
 
             // Add Local Headers
-            foreach (var header in Element.LocalRegisteredHeaders) {
+            foreach (var header in Element.LocalRegisteredHeaders)
+            {
                 if (!headers.ContainsKey(header.Key))
                     headers.Add(header.Key, header.Value);
             }
 
             // Add Global Headers
-            if (Element.EnableGlobalHeaders) {
-                foreach (var header in FormsWebView.GlobalRegisteredHeaders) {
+            if (Element.EnableGlobalHeaders)
+            {
+                foreach (var header in FormsWebView.GlobalRegisteredHeaders)
+                {
                     if (!headers.ContainsKey(header.Key))
                         headers.Add(header.Key, header.Value);
                 }

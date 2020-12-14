@@ -32,7 +32,8 @@ namespace Xam.Plugin.WebView.Droid
                 return null;
 
             //It seems that post methods doesn't get captured by webviews OnPageStarted method. Needs to handle this manually to raise WhenNavigationStarted in WebViewPage
-            if (!string.IsNullOrEmpty(request.Method) && request.Method.Equals("POST")) {
+            if (!string.IsNullOrEmpty(request.Method) && request.Method.Equals("POST"))
+            {
                 renderer.Element.HandleNavigationStartRequest(request.Url.ToString());
             }
 
@@ -95,7 +96,8 @@ namespace Xam.Plugin.WebView.Droid
 
             var response = renderer.Element.HandleNavigationStartRequest(url);
 
-            if (response.Cancel || response.OffloadOntoDevice) {
+            if (response.Cancel || response.OffloadOntoDevice)
+            {
                 if (response.OffloadOntoDevice)
                     AttemptToHandleCustomUrlScheme(view, url);
                 view.StopLoading();
@@ -116,7 +118,8 @@ namespace Xam.Plugin.WebView.Droid
 
             var response = renderer.Element.HandleNavigationStartRequest(url);
 
-            if (response.Cancel || response.OffloadOntoDevice) {
+            if (response.Cancel || response.OffloadOntoDevice)
+            {
                 if (response.OffloadOntoDevice)
                     AttemptToHandleCustomUrlScheme(view, url);
                 view.StopLoading();
@@ -132,8 +135,10 @@ namespace Xam.Plugin.WebView.Droid
 
             var response = renderer.Element.HandleNavigationStartRequest(url);
 
-            if (response.Cancel || response.OffloadOntoDevice) {
-                Device.BeginInvokeOnMainThread(() => {
+            if (response.Cancel || response.OffloadOntoDevice)
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
                     if (response.OffloadOntoDevice)
                         AttemptToHandleCustomUrlScheme(view, url);
 
@@ -152,7 +157,8 @@ namespace Xam.Plugin.WebView.Droid
 
         bool AttemptToHandleCustomUrlScheme(Android.Webkit.WebView view, string url)
         {
-            if (url.StartsWith("mailto")) {
+            if (url.StartsWith("mailto"))
+            {
                 Android.Net.MailTo emailData = Android.Net.MailTo.Parse(url);
 
                 Intent email = new Intent(Intent.ActionSendto);
@@ -163,16 +169,17 @@ namespace Xam.Plugin.WebView.Droid
                 email.PutExtra(Intent.ExtraCc, emailData.Cc);
                 email.PutExtra(Intent.ExtraText, emailData.Body);
 
-                if (email.ResolveActivity(Forms.Context.PackageManager) != null)
-                    Forms.Context.StartActivity(email);
+                if (email.ResolveActivity(Android.App.Application.Context.PackageManager) != null)
+                    Android.App.Application.Context.StartActivity(email);
 
                 return true;
             }
 
-            if (url.StartsWith("http")) {
+            if (url.StartsWith("http"))
+            {
                 Intent webPage = new Intent(Intent.ActionView, Android.Net.Uri.Parse(url));
-                if (webPage.ResolveActivity(Forms.Context.PackageManager) != null)
-                    Forms.Context.StartActivity(webPage);
+                if (webPage.ResolveActivity(Android.App.Application.Context.PackageManager) != null)
+                    Android.App.Application.Context.StartActivity(webPage);
 
                 return true;
             }
@@ -185,9 +192,12 @@ namespace Xam.Plugin.WebView.Droid
             if (Reference == null || !Reference.TryGetTarget(out FormsWebViewRenderer renderer)) return;
             if (renderer.Element == null) return;
 
-            if (FormsWebViewRenderer.IgnoreSSLGlobally) {
+            if (FormsWebViewRenderer.IgnoreSSLGlobally)
+            {
                 handler.Proceed();
-            } else {
+            }
+            else
+            {
                 handler.Cancel();
                 renderer.Element.Navigating = false;
             }
@@ -202,7 +212,7 @@ namespace Xam.Plugin.WebView.Droid
             await renderer.OnJavascriptInjectionRequest(FormsWebView.InjectedFunction);
 
             // Add Global Callbacks
-            if(renderer != null && renderer.Element != null)
+            if (renderer != null && renderer.Element != null)
             {
                 if (renderer.Element.EnableGlobalCallbacks)
                     foreach (var callback in FormsWebView.GlobalRegisteredCallbacks)
