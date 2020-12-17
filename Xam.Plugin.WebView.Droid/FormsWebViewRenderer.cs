@@ -110,7 +110,7 @@ namespace Xam.Plugin.WebView.Droid
             _webView.Settings.AllowFileAccessFromFileURLs = true;
             _webView.AddJavascriptInterface(new FormsWebViewBridge(this), "bridge");
             _webView.SetWebViewClient(new FormsWebViewClient(this));
-            _webView.SetWebChromeClient(new FormsWebViewChromeClient(this, (Activity)Android.App.Application.Context));
+            _webView.SetWebChromeClient(new FormsWebViewChromeClient(this, (Activity)this.Context));   
             _webView.SetBackgroundColor(Android.Graphics.Color.Transparent);
 
             FormsWebView.CallbackAdded += OnCallbackAdded;
