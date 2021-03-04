@@ -7,8 +7,6 @@ using Xam.Plugin.WebView.Abstractions;
 using Android.Runtime;
 using Android.Content;
 using Xamarin.Forms;
-using System.Net.Http;
-using System.Diagnostics;
 
 namespace Xam.Plugin.WebView.Droid
 {
